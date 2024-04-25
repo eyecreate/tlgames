@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: forgottenserver
+    restart: always
+    ports:
+      - "7171:7171"
+      - "7172:7172"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - db-network
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_USER: forgottenserver
+      MYSQL_PASSWORD: badpass
+      # Automatically creates a database
+      MYSQL_DATABASE: forgottenserver
+    volumes:
+      # Saves all the data in ./db directory
+      #- /var/lib/mysql
+      # Automatically executes schema.sql on startup
+      - ./forgottenserver/schema.sql:/docker-entrypoint-initdb.d/schema.sql:z
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 15s
+      retries: 10
+    networks:
+      - db-network
+
+  db-adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - db-network
+
+  # client:
+  #   build:
+  #     context: otclient
+  #   depends_on:
+  #     - server
+  #   environment:
+  #     - DISPLAY
+  #   volumes:
+  #     - /tmp/.X11-unix/:/tmp/.X11-unix
+  #     - ./data:/otclient/data/things/1098
+  #   devices:
+  #     - /dev/dri
+  #     - /dev/snd
+  #   networks:
+  #     - db-network
+
+  # dev-tools:
+  #   build:
+  #     context: dev-tools
+  #   environment:
+  #     - DISPLAY
+  #   volumes:
+  #     - /tmp/.X11-unix/:/tmp/.X11-unix
+  #     - ./data:/otclient/data/things/1098
+  #     - ./otclient:/otclient
+  #   devices:
+  #     - /dev/dri
+  #     - /dev/snd
+  #   networks:
+  #     - db-network
+
+networks:
+  db-network:

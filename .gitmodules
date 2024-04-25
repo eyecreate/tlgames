@@ -1,0 +1,6 @@
+[submodule "forgottenserver"]
+	path = forgottenserver
+	url = git@github.com:eyecreate/forgottenserver.git
+[submodule "otclient"]
+	path = otclient
+	url = git@github.com:eyecreate/otclient.git
