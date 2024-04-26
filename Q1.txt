@@ -1,0 +1,28 @@
+Original with comments
+-----------------------------------------------------------------------
+local function releaseStorage(player) -- local makes this function only available to this block. Since this is called by an event, will it be able to see it in this scope?
+player:setStorageValue(1000, -1) -- I find it interesting that keys are numbers but this code has nothing defined to help you keep track of the number's meaning. It's just a sample, but in a larger code base it would help to, if the key represents the same thing in each player storage, name it and include those definitions.
+end
+
+function onLogout(player)
+if player:getStorageValue(1000) == 1 then
+addEvent(releaseStorage, 1000, player) -- This function passes three values, only two of which I thought would be used by any other code. Turns out with a search that OpenTibia does have a function named such with three arguments. It used the second argument as a execution delay. 
+end
+return true
+end
+=======================================================================
+New
+-----------------------------------------------------------------------
+LOGGED_IN = 1000
+
+function releaseStorage(player)
+  player:setStorageValue(LOGGED_IN, -1)
+end
+
+function onLogout(player)
+  if player:getStorageValue(LOGGED_IN) == 1 then
+    addEvent(releaseStorage, 1000, player)
+  end
+  return true
+end
+

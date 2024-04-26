@@ -1,0 +1,25 @@
+Original with comments
+-----------------------------------------------------------------------
+function do_sth_with_PlayerParty(playerId, membername) -- While I did note the lua wrapper supports ids and names, I'm going to change mine to the same type.
+player = Player(playerId) -- why not local for this?
+local party = player:getParty()
+
+for k,v in pairs(party:getMembers()) do -- I assume getMembers is iterable and not a part I need to debug. A check in the TFS code shows that was true. The TFS lua code using party:getMembers uses iparis but the code here is working with key value pairs and not index value pairs.(not that it matters since neither key nor index is used)
+if v == Player(membername) then -- I checked and it seems TFS does not implement the comparison operator for Player object. Even though there is a lua comparison function implemented for the player object, I'm not certain it's comparing anything besides pointers. I see there is a guid, which seems unique enough for a comparison replacement.
+party:removeMember(Player(membername))
+end
+end
+end
+=======================================================================
+New
+-----------------------------------------------------------------------
+function removeMemberFromPlayersParty(playerId, removingMemberId)
+  player = Player(playerId)
+  local party = player:getParty()
+
+  for k,v in pairs(party:getMembers()) do
+    if v.getGuid() == Player(removingMemberId).getGuid() then
+      party:removeMember(Player(removingMemberId))
+    end
+  end
+end

@@ -1,0 +1,47 @@
+Original with comments
+-----------------------------------------------------------------------
+void Game::addItemToPlayer(const std::string& recipient, uint16_t itemId)
+{
+Player* player = g_game.getPlayerByName(recipient);
+if (!player) {
+player = new Player(nullptr); // I sure hope someone remembers to clean this object up. ;)
+if (!IOLoginData::loadPlayerByName(player, recipient)) {
+return;
+}
+}
+
+Item* item = Item::CreateItem(itemId); // If you create it(not on the stack), you've got to be ready to clean it up.
+if (!item) {
+return;
+}
+
+g_game.internalAddItem(player->getInbox(), item, INDEX_WHEREEVER, FLAG_NOLIMIT);
+
+if (player->isOffline()) {
+IOLoginData::savePlayer(player);
+}
+}
+=======================================================================
+New
+-----------------------------------------------------------------------
+void Game::addItemToPlayer(const std::string& recipient, uint16_t itemId)
+{
+	std::shared_ptr<Player> player = g_game.getPlayerByName(recipient); //alternatively, I could have kept the pointers and freed them at the exit points of the function, but I like making use of modern c++
+	if (!player) {
+		player = std:make_shared<Player>(nullptr);
+		if (!IOLoginData::loadPlayerByName(player, recipient)) {
+			return;
+		}
+	}
+
+	std::shared_ptr<Item> item = Item::CreateItem(itemId);
+	if (!item) {
+		return;
+	}
+
+	g_game.internalAddItem(player->getInbox(), item, INDEX_WHEREEVER, FLAG_NOLIMIT);
+
+	if (player->isOffline()) {
+		IOLoginData::savePlayer(player);
+	}
+}

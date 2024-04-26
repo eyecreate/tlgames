@@ -1,0 +1,21 @@
+Original with comments
+-----------------------------------------------------------------------
+function printSmallGuildNames(memberCount)
+-- this method is supposed to print names of all guilds that have less than memberCount max members
+local selectGuildQuery = "SELECT name FROM guilds WHERE max_members < %d;" -- Why max_members instead of active_members? Maybe it's a detail about OT not obvious at glance.
+local resultId = db.storeQuery(string.format(selectGuildQuery, memberCount))
+local guildName = result.getString("name") -- Where is result coming from? Also resultId isn't used in any obvious way. After some looking, it seems the lua binding puts the pointer in a wrapper so it's easier to use the shared pointer returned. It's used in this way throughout the TFS code. More importantly, only one string is getting out of this query. The result object has a next() function to iterate through multiple results.
+print(guildName)
+end
+=======================================================================
+New
+-----------------------------------------------------------------------
+function printSmallGuildNames(memberCount)
+  local selectGuildQuery = "SELECT name FROM guilds WHERE max_members < %d;" 
+  local resultId = db.storeQuery(string.format(selectGuildQuery, memberCount))
+  repeat
+    local guildName = result.getString("name")
+    print(guildName)
+  until not result.next(resultId)
+  result.free(resultId) -- Pointers don't free themselves :)
+end
